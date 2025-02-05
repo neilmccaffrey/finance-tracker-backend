@@ -1,13 +1,31 @@
+using DotNetEnv;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Load configuration from appsettings.json
-var configuration = builder.Configuration;
+// Load environment variables from .env
+Env.Load();
+var jwtIssuer = Env.GetString("JWT_ISSUER") ?? "your-backend.com";
+var jwtAudience = Env.GetString("JWT_AUDIENCE") ?? "your-frontend.com";
+var jwtKey = Env.GetString("JWT_SECRET");
+var dbPassword = Env.GetString("DB_PASSWORD") ?? "";
 
-// Add authentication services
+if (string.IsNullOrEmpty(jwtKey))
+{
+    throw new Exception("JWT_SECRET is missing from environment variables");
+}
+
+// Load MySQL connection string from appsettings.json
+var connectionString = $"Server=localhost;Database=finance_tracker;User=root;Password={dbPassword};";
+
+// Configure MySQL Database Connection
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 30))));
+
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -17,26 +35,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = configuration["Jwt:Issuer"],
-            ValidAudience = configuration["Jwt:Audience"],
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]))
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });
 
-// Add authorization middleware
 builder.Services.AddAuthorization();
-
-// Add controllers
 builder.Services.AddControllers();
 
 var app = builder.Build();
 
-// Enable authentication & authorization
 app.UseAuthentication();
 app.UseAuthorization();
-
-// Map API controllers
 app.MapControllers();
-
-// Run the application
 app.Run();
