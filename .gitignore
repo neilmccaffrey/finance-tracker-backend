@@ -1,0 +1,14 @@
+# Ignore .NET build outputs
+bin/
+obj/
+
+# Ignore user secrets and environment variables
+secrets.json
+.env
+
+# Ignore Visual Studio files (if using VS)
+.vscode/
+.vs/
+
+# Ignore dependency cache
+packages/
