@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 public class User
 {
@@ -6,8 +7,17 @@ public class User
     public int Id { get; set; }
 
     [Required]
-    public required string Username { get; set; }
+    public string Username { get; set; } = string.Empty;
 
     [Required]
-    public required string PasswordHash { get; set; } // Store hashed passwords
+    public string PasswordHash { get; set; } = string.Empty;
+
+    [Required]
+    public byte[] PasswordSalt { get; set; } // Store the salt (HMAC key)
+}
+
+public class LoginRequest
+{
+    public string Username { get; set; }
+    public string Password { get; set; }
 }
