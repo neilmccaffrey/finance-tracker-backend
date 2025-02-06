@@ -20,7 +20,7 @@ public class UserController : ControllerBase
         // Check if user exists
         var existingUser = await _context.Users.FirstOrDefaultAsync(u => u.Username == user.Username);
         if (existingUser != null)
-            return BadRequest("Username already exists");
+            return BadRequest(new { message = "Username already exists" });
 
         // Hash the password
         using var hmac = new HMACSHA256();
