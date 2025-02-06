@@ -43,10 +43,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+//Add CORS for browsers
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAll",
+        policy => policy.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+});
 
 var app = builder.Build();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseCors("AllowAll");
 app.MapControllers();
 app.Run();
