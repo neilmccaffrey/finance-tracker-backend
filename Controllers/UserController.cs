@@ -48,7 +48,7 @@ public class UserController : ControllerBase
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == request.Username);
         if (user == null) return Unauthorized(new { message = "User not found" });
 
-        using var hmac = new HMACSHA256(user.PasswordSalt); // ✅ Use stored salt (HMAC key)
+        using var hmac = new HMACSHA256(user.PasswordSalt); // Use stored salt (HMAC key)
         var computedHash = Convert.ToBase64String(hmac.ComputeHash(Encoding.UTF8.GetBytes(request.Password)));
 
         if (computedHash != user.PasswordHash)
