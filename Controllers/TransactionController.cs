@@ -68,4 +68,23 @@ public async Task<ActionResult<IEnumerable<Transaction>>> GetUserIncome(int user
 
     return income;
 }
+
+// DELETE: api/transactions/{id}
+[HttpDelete("{id}")]
+public async Task<IActionResult> DeleteTransaction(int id)
+{
+    var transaction = await _context.Transactions.FindAsync(id);
+    
+    if (transaction == null)
+    {
+        return NotFound(new { message = "Transaction not found." });
+    }
+
+    _context.Transactions.Remove(transaction);
+    await _context.SaveChangesAsync();
+
+    return Ok(new { success = true, message = "Transaction deleted successfully." });
+}
+
+
 }
