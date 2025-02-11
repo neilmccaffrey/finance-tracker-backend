@@ -67,7 +67,7 @@ public async Task<ActionResult<IEnumerable<Transaction>>> GetUserIncome(int user
 
 // DELETE: api/transactions/{id}
 [HttpDelete("{id}")]
-public async Task<IActionResult> DeleteTransaction(int id)
+public async Task<IActionResult> DeleteTransaction(Guid id)
 {
     var transaction = await _context.Transactions.FindAsync(id);
     
