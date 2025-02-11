@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 public class Transaction
 {
     [Key]
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     [Required]
     [Column("user_id")]  // Make sure this matches the database column name

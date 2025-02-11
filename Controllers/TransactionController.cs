@@ -22,6 +22,12 @@ public class TransactionsController : ControllerBase
     public async Task<IActionResult> AddTransaction([FromBody] Transaction transaction)
     {
        
+        // Make sure the UUID is being passed from frontend
+        if (transaction.Id == Guid.Empty)
+        {
+            return BadRequest("UUID is required.");
+        }
+        // Make sure Transaction Type is being passed from rontend
         if (string.IsNullOrEmpty(transaction.Type))
         {
             return BadRequest("Transaction type is required.");
@@ -45,12 +51,7 @@ public async Task<ActionResult<IEnumerable<Transaction>>> GetUserExpenses(int us
         .Where(t => t.UserId == userId && t.Type == "Expense") // Check Type as string
         .ToListAsync();
 
-    if (expenses == null || !expenses.Any())
-    {
-        return NotFound();
-    }
-
-    return expenses;
+    return Ok(expenses);
 }
 
 // Get all income transactions for a user
@@ -61,12 +62,7 @@ public async Task<ActionResult<IEnumerable<Transaction>>> GetUserIncome(int user
         .Where(t => t.UserId == userId && t.Type == "Income") // Check Type as string
         .ToListAsync();
 
-    if (income == null || !income.Any())
-    {
-        return NotFound();
-    }
-
-    return income;
+    return Ok(income);
 }
 
 // DELETE: api/transactions/{id}
