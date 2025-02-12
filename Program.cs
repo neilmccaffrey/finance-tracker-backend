@@ -12,15 +12,13 @@ Env.Load();
 var jwtIssuer = Env.GetString("JWT_ISSUER") ?? "your-backend.com";
 var jwtAudience = Env.GetString("JWT_AUDIENCE") ?? "your-frontend.com";
 var jwtKey = Env.GetString("JWT_SECRET");
-var dbPassword = Env.GetString("DB_PASSWORD") ?? "";
 
 if (string.IsNullOrEmpty(jwtKey))
 {
     throw new Exception("JWT_SECRET is missing from environment variables");
 }
 
-// Load MySQL connection string from appsettings.json
-var connectionString = $"Server=localhost;Database=finance_tracker;User=root;Password={dbPassword};";
+var connectionString = Environment.GetEnvironmentVariable("MYSQL_URL");
 
 // Configure MySQL Database Connection
 builder.Services.AddDbContext<AppDbContext>(options =>
