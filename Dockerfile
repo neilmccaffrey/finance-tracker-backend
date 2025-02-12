@@ -15,7 +15,7 @@ COPY . ./
 RUN dotnet publish -c Release -o out
 
 # Use the official .NET runtime image to run the app
-FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
 
 # Set the working directory
 WORKDIR /app
