@@ -24,7 +24,7 @@ WORKDIR /app
 COPY --from=build /app/out .
 
 # Expose the port the app will run on
-EXPOSE 80
+EXPOSE 8080
 
 # Start the application
 ENTRYPOINT ["dotnet", "finance-tracker-backend.dll"]
