@@ -27,4 +27,4 @@ COPY --from=build /app/out .
 EXPOSE 80
 
 # Start the application
-ENTRYPOINT ["dotnet", "finance_tracker_backend.dll"]
+ENTRYPOINT ["dotnet", "finance-tracker-backend.dll"]
