@@ -17,7 +17,8 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowMyFrontend",
         policy => policy.WithOrigins("https://finance-tracker-one-phi.vercel.app")
                         .AllowAnyMethod()
-                        .AllowAnyHeader());
+                        .AllowAnyHeader()
+                        .AllowCredentials());
 });
 
 // JWT configuration
