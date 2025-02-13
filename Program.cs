@@ -10,6 +10,8 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Load environment variables from .env
 Env.Load();
+
+// JWT configuration
 var jwtIssuer = Env.GetString("JWT_ISSUER") ?? "your-backend.com";
 var jwtAudience = Env.GetString("JWT_AUDIENCE") ?? "your-frontend.com";
 var jwtKey = Env.GetString("JWT_SECRET");
@@ -19,14 +21,12 @@ if (string.IsNullOrEmpty(jwtKey))
     throw new Exception("JWT_SECRET is missing from environment variables");
 }
 
+// MySQL connection string
 var connectionString = Environment.GetEnvironmentVariable("MYSQL_URL");
 
 // Configure MySQL Database Connection
-// builder.Services.AddDbContext<AppDbContext>(options =>
-//     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 30))));
 try
 {
-    // Log startup steps
     builder.Services.AddDbContext<AppDbContext>(options =>
     {
         options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 30)));
@@ -39,6 +39,7 @@ catch (Exception ex)
     throw; // Ensure the exception is thrown if it happens
 }
 
+// JWT Authentication configuration
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
@@ -48,19 +49,20 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateAudience = true,
             ValidateLifetime = true,
             ValidateIssuerSigningKey = true,
-            ValidIssuer = builder.Configuration["Jwt:Issuer"],
-            ValidAudience = builder.Configuration["Jwt:Audience"],
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
         };
     });
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
+
 // Add CORS for browsers
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
-        policy => policy.AllowAnyOrigin()
+        policy => policy.WithOrigins("https://finance-tracker-one-phi.vercel.app/") // restrict to specific origin
                         .AllowAnyMethod()
                         .AllowAnyHeader());
 });
@@ -75,8 +77,10 @@ builder.WebHost.ConfigureKestrel(options =>
 
 var app = builder.Build();
 
-app.UseAuthentication();
-app.UseAuthorization();
-app.UseCors("AllowAll");
-app.MapControllers();
-app.Run();
+// Middleware pipeline
+app.UseCors("AllowAll");  // Apply CORS policy
+app.UseAuthentication();  // Authentication middleware
+app.UseAuthorization();   // Authorization middleware
+app.MapControllers();  // Map API controllers
+
+app.Run();  // Run the app
