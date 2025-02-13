@@ -22,8 +22,22 @@ if (string.IsNullOrEmpty(jwtKey))
 var connectionString = Environment.GetEnvironmentVariable("MYSQL_URL");
 
 // Configure MySQL Database Connection
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 30))));
+// builder.Services.AddDbContext<AppDbContext>(options =>
+//     options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 30))));
+try
+{
+    // Log startup steps
+    builder.Services.AddDbContext<AppDbContext>(options =>
+    {
+        options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 30)));
+    });
+    Console.WriteLine("Database connection configured.");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error configuring database: {ex.Message}");
+    throw; // Ensure the exception is thrown if it happens
+}
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
