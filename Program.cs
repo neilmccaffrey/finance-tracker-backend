@@ -1,24 +1,88 @@
-using System;
-using System.Net.Sockets;
+using DotNetEnv;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Net;
 
-class Program
+var builder = WebApplication.CreateBuilder(args);
+
+// Load environment variables from .env
+Env.Load();
+
+// CORS setup
+builder.Services.AddCors(options =>
 {
-    static void Main()
-    {
-        string host = "junction.proxy.rlwy.net";
-        int port = 59468;
+    options.AddPolicy("AllowMyFrontend",
+        policy => policy.WithOrigins("https://finance-tracker-one-phi.vercel.app")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+});
 
-        try
-        {
-            using (var client = new TcpClient())
-            {
-                client.Connect(host, port);
-                Console.WriteLine("Connection successful!");
-            }
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Connection failed: {ex.Message}");
-        }
-    }
+// JWT configuration
+var jwtIssuer = Env.GetString("JWT_ISSUER") ?? "your-backend.com";
+var jwtAudience = Env.GetString("JWT_AUDIENCE") ?? "your-frontend.com";
+var jwtKey = Env.GetString("JWT_SECRET");
+
+if (string.IsNullOrEmpty(jwtKey))
+{
+    throw new Exception("JWT_SECRET is missing from environment variables");
 }
+
+// MySQL connection string
+var connectionString = Environment.GetEnvironmentVariable("MYSQL_URL");
+Console.WriteLine($"MYSQL_URL: {connectionString}");
+
+// Configure MySQL Database Connection
+try
+{
+    builder.Services.AddDbContext<AppDbContext>(options =>
+    {
+        options.UseMySql(connectionString, new MySqlServerVersion(new Version(8, 0, 30)));
+    });
+    Console.WriteLine("Database connection configured.");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error configuring database: {ex.Message}");
+    throw; // Ensure the exception is thrown if it happens
+}
+
+// JWT Authentication configuration
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = jwtIssuer,
+            ValidAudience = jwtAudience,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
+
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000"; // Default to 10000 if PORT is not set
+
+// Configure the application to listen on the port provided by Render
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Listen(IPAddress.Any, int.Parse(port)); // Use the dynamic port
+});
+
+var app = builder.Build();
+
+// Middleware pipeline
+app.UseCors("AllowMyFrontend"); // Apply CORS policy
+app.UseAuthentication(); // Authentication middleware
+app.UseAuthorization(); // Authorization middleware
+
+app.MapControllers(); // Map API controllers
+
+app.Run(); // Run the app
