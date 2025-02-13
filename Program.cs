@@ -31,7 +31,7 @@ if (string.IsNullOrEmpty(jwtKey))
 }
 
 // MySQL connection string
-var connectionString = Environment.GetEnvironmentVariable("MYSQL_URL");
+var connectionString = "Server=junction.proxy.rlwy.net;Port=59468;Database=railway;User=root;Password=puqVTfobYPgcbkUNddkMJsKSPahXsTTp";
 Console.WriteLine($"MYSQL_URL: {connectionString}");
 
 // Configure MySQL Database Connection
