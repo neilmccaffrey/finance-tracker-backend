@@ -42,7 +42,7 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization();
 builder.Services.AddControllers();
-//Add CORS for browsers
+// Add CORS for browsers
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
@@ -52,15 +52,13 @@ builder.Services.AddCors(options =>
 });
 
 var port = Environment.GetEnvironmentVariable("PORT") ?? "10000"; // Default to 10000 if PORT is not set
+
+// Configure the application to listen on the port provided by Render
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.Listen(IPAddress.Any, int.Parse(port)); // Use the dynamic port
 });
-// Configure the application to listen on port 8080
-builder.WebHost.ConfigureKestrel(options =>
-{
-    options.Listen(IPAddress.Any, 10000); // Adjust the port if needed
-});
+
 var app = builder.Build();
 
 app.UseAuthentication();
