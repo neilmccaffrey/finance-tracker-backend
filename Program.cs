@@ -11,6 +11,15 @@ var builder = WebApplication.CreateBuilder(args);
 // Load environment variables from .env
 Env.Load();
 
+// CORS setup
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowMyFrontend",
+        policy => policy.WithOrigins("https://finance-tracker-one-phi.vercel.app")
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+});
+
 // JWT configuration
 var jwtIssuer = Env.GetString("JWT_ISSUER") ?? "your-backend.com";
 var jwtAudience = Env.GetString("JWT_AUDIENCE") ?? "your-frontend.com";
@@ -78,7 +87,7 @@ builder.WebHost.ConfigureKestrel(options =>
 var app = builder.Build();
 
 // Middleware pipeline
-app.UseCors("AllowAll");  // Apply CORS policy
+app.UseCors("AllowMyFrontend");  // Apply CORS policy
 app.UseAuthentication();  // Authentication middleware
 app.UseAuthorization();   // Authorization middleware
 
