@@ -7,7 +7,6 @@ public class Transaction
     public Guid Id { get; set; }
 
     [Required]
-    [Column("user_id")]  // Make sure this matches the database column name
     public int UserId { get; set; }  // map to user_id in the database
 
     [Required]
