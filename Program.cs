@@ -62,7 +62,7 @@ builder.Services.AddControllers();
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll",
-        policy => policy.WithOrigins("https://finance-tracker-one-phi.vercel.app/") // restrict to specific origin
+        policy => policy.AllowAnyOrigin()
                         .AllowAnyMethod()
                         .AllowAnyHeader());
 });
@@ -81,6 +81,7 @@ var app = builder.Build();
 app.UseCors("AllowAll");  // Apply CORS policy
 app.UseAuthentication();  // Authentication middleware
 app.UseAuthorization();   // Authorization middleware
+
 app.MapControllers();  // Map API controllers
 
 app.Run();  // Run the app
