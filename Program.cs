@@ -51,15 +51,15 @@ builder.Services.AddCors(options =>
                         .AllowAnyHeader());
 });
 
-// Configure the application to listen on port 8080
-// builder.WebHost.ConfigureKestrel(options =>
-// {
-//     options.Listen(IPAddress.Any, 8080); // Adjust the port if needed
-// });
 var port = Environment.GetEnvironmentVariable("PORT") ?? "10000"; // Default to 10000 if PORT is not set
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.Listen(IPAddress.Any, int.Parse(port)); // Use the dynamic port
+});
+// Configure the application to listen on port 8080
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.Listen(IPAddress.Any, 10000); // Adjust the port if needed
 });
 var app = builder.Build();
 
