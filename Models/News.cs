@@ -6,6 +6,6 @@ public class GuardianNews
 {
     [Key]
     public string Id { get; set; }
-    public string WebTitle { get; set; }
-    public string WebUrl { get; set; }
+    public string Title { get; set; }
+    public string Url { get; set; }
 }
