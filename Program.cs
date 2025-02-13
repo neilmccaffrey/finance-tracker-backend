@@ -32,7 +32,7 @@ if (string.IsNullOrEmpty(jwtKey))
 
 // MySQL connection string
 var connectionString = Environment.GetEnvironmentVariable("MYSQL_URL");
-
+Console.WriteLine($"MYSQL_URL: {Environment.GetEnvironmentVariable("MYSQL_URL")}");
 // Configure MySQL Database Connection
 try
 {
